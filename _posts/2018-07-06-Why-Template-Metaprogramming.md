@@ -11,4 +11,62 @@ categories: moderncpp
 
 大致的意思翻译一下。模板元编程是一种元编程的技巧。它让编译器利用模板来生成临时代码，与其他源代码合并后，再完成编译工作。这些模板会输出编译期常量，类型还有纯函数。使用这些模板可以看作是编译期的执行。
 
-在笔者自己学习C++，看到这个定义的时候，内心是崩溃的。我问自己的第一个问题就是，编译期计算，虽然不明觉厉，但是它到底意义何在？这和人们认知一个事物的逻辑顺序是有所偏差的。What, why & how. 在考察what部分的时候，我就对这个事物的合理性有了巨大的质疑。加之C++ template的代码往往不太直观，也不常见。于是乎，模板狂人，奇淫巧技还有黑魔法等，一堆帽子就扣过来了。所以，对于TMP而言why比what重要许多，也应该放在what之前了解。结果就有了这篇鄙文。
+在笔者自己学习C++，看到这个定义的时候，内心是崩溃的。我问自己的第一个问题就是，编译期计算，虽然不明觉厉，但是它到底意义何在？这和人们认知一个事物的逻辑顺序是有所偏差的。What, why & how. 在考察what部分的时候，我就对这个事物的合理性有了巨大的质疑。加之C++ template的代码往往不太直观，也不常见。于是乎，模板狂人，奇淫巧技还有黑魔法等，一些误解也如期而至。所以，对于TMP而言why比what重要许多，也应该放在what之前了解。结果就有了这篇鄙文。
+
+## 2. 问题
+在软件设计中，我们经常使用抽象来设计能够应付更多情况的接口。Object Oriented Programming(OOP)而言，似乎是一个很自然的选择，但是OOP不能很好地解决一切问题。
+
+### 2.1 OOP的缺陷 
+```cpp
+// your abstract interface
+struct some_interface {
+    virtual void some_procedure() = 0;
+};
+
+// implement to extend
+struct interface_impl : some_interface {
+    void some_procedure() override {
+        // blah blah blah...
+    }
+};
+
+// factory
+some_interface* create_interface(interface_type type);
+
+// client code
+int main(void) {
+    // pre procedure
+    auto entity = create_interface(some_type);
+    // mid procedure
+    entity->some_procedure();
+    // post procedure
+    return 0;
+}
+```
+但是这个无形中增加了一个强依赖的约束，**interface_impl is an implementation of some_interface**. 由于业务需求，我们需要增加一个接口another_interface。根据开放封闭原则，就有了如下的代码：
+```cpp
+struct another_interface {
+    virtual void some_method() = 0;
+};
+
+struct interface_impl1 
+    : another_interface
+    , interface_impl {
+    void some_method() override {
+        // blah blah blah...
+    }
+};
+
+// you can implement in composite either
+class interface_impl1 {
+    // ...
+private:
+    some_interface*     i1_;
+    another_interface*  i2_;
+};
+```
+这里就突显出了OOP的劣势。**interface_impl1 is not only an implementation of some_interface, but also another_interface.** OOP实际上是面向Is_A的编程, Is_A oriented programming. 这种编程范式会引入更多的代码，还有更复杂的框架设计。
+
+组合模式的语义虽然被认为是Has_A，但是分解到i1_和i2_，它们各自的语义都还是Is_A. 也就是说，组合模式的Has_A只能分解到interface的级别。**interface_impl1 has a some_interface and an another_interface.** 而我们接下来要介绍的generics programming(GP), 它所拥有的Has_A，可以是数据，亦可是操作和操作的语义，还可以是对象的性质，甚至是操作的时空复杂度。
+
+### 2.2 GP的意义

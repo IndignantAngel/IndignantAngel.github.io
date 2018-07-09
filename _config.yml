@@ -20,3 +20,7 @@ author:
 
 # Custom vars
 version:             1.0.0
+
+plugins:            [jekyll-paginate]
+mermaid:
+  src:              'https://cdn.rawgit.com/knsv/mermaid/6.0.0/dist/mermaid.js'
