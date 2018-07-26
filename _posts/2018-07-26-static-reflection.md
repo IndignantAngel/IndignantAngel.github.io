@@ -83,13 +83,15 @@ struct ::iguana::meta_info<foo>
     // class name
     static constexpr std::string_view name() noexcept
     {
-        return {"foo"};
+        using namespace std::string_literals;
+        return "foo"sv;
     }
     // pointer to member data
     static constexpr auto mdata_names() noexcept
         -> std::array<std::string_view, 1>
     {
-        return {{"var_a_"}};
+        using namespace std::string_literals;
+        return {"var_a_"sv};
     }
     static constexpr auto mdata() noexcept
     {
@@ -99,7 +101,8 @@ struct ::iguana::meta_info<foo>
     static constexpr auto sdata_names() noexcept
         -> std::array<std::string_view, 1>
     {
-        return {{"static_var"}};
+        using namespace std::string_literals;
+        return {"static_var"sv};
     }
     static constexpr auto sdata() noexcept
     {
@@ -109,7 +112,8 @@ struct ::iguana::meta_info<foo>
     static constexpr auto mfunc_names() noexcept
         -> std::array<std::string_view, 2>
     {
-        return {{"get"}, {"set"}};
+        using namespace std::string_literals;
+        return {"get"sv, "set"sv};
     }
     static constexpr auto mfunc() noexcept
     {
@@ -119,7 +123,8 @@ struct ::iguana::meta_info<foo>
     static constexpr auto sfunc_names() noexcept
         -> std::array<std::string_view, 1>
     {
-        return {{"set_svar"}};
+        using namespace std::string_literals;
+        return {"set_svar"sv};
     }
     static constexpr auto mfunc() noexcept
     {
@@ -233,7 +238,7 @@ template<> struct iguana::reflect_info<foo> {
     IGUANA_SFUNC_PROCESS(foo, set_svar)
 };
 ```
-每个IGUANA_XXX_PROCESS宏，负责实际生成获取成员名和获取成员指针的代码。这一部分的代码是基于iguana之前的实现改进的，这里就不赘述了，详细的代码可以参照[此链接](https://github.com/Madokakaroto/Kathedrale-Lazengann/blob/master/include/kath/reflection.hpp)。
+每个IGUANA_XXX_PROCESS宏，负责实际生成获取成员名和获取成员指针的代码。这一部分的代码是基于iguana之前的实现改进的，这里就不赘述了，详细的代码可以参照[此链接](https://github.com/Madokakaroto/Kathedrale-Lazengann/blob/master/include/kath/reflection.hpp)。我暂时还没有上传示例代码，后面会添加上，更新在文章中。
 ## 5. TRAVERSE
 反射代码是可以半自动生成了，但是使用起来不是很方便。所以我试着提供了一个visitor的机制，可以比较方便的访问：
 ```cpp
